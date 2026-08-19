@@ -116,50 +116,65 @@ class _OrderHomePageState extends State<OrderHomePage> {
     }
   }
 
-  // A5 സൈസ് പ്രിന്റിംഗ് & PDF ജനറേഷൻ ഫംഗ്ഷൻ
+  // Left Alignment കൃത്യമാക്കിയ A5 PDF ജനറേഷൻ ഫംഗ്ഷൻ
   Future<void> _printA5Document() async {
     final pdf = pw.Document();
+
+    final List<List<String>> tableData = [];
+    int slNo = 1;
+
+    orderSummary.forEach((item, priceQtyMap) {
+      String priceQtyString = priceQtyMap.entries
+          .map((e) => "${e.key}*${e.value}")
+          .join(", ");
+
+      tableData.add([
+        slNo.toString(),
+        item,
+        priceQtyString,
+      ]);
+      slNo++;
+    });
 
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.a5,
+        margin: const pw.EdgeInsets.all(12),
         build: (pw.Context context) {
-          return pw.Padding(
-            padding: const pw.EdgeInsets.all(16),
-            child: pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Center(
-                  child: pw.Text('MY BAKE ORDER REQUEST', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
-                ),
-                pw.SizedBox(height: 5),
-                pw.Center(
-                  child: pw.Text('Date: $nextDayDate', style: const pw.TextStyle(fontSize: 12, color: PdfColors.grey700)),
-                ),
-                pw.Divider(thickness: 1.5),
-                pw.SizedBox(height: 10),
-                ...orderSummary.entries.map((entry) {
-                  String details = entry.value.entries.map((e) => "${e.key}*${e.value}").join(", ");
-                  return pw.Padding(
-                    padding: const pw.EdgeInsets.symmetric(vertical: 4),
-                    child: pw.Row(
-                      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                      children: [
-                        pw.Text(entry.key, style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold)),
-                        pw.Text(details, style: const pw.TextStyle(fontSize: 12)),
-                      ],
-                    ),
-                  );
-                }),
-                pw.Divider(thickness: 1.5),
-              ],
-            ),
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Center(
+                child: pw.Text('MY BAKE ORDER REQUEST', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+              ),
+              pw.SizedBox(height: 4),
+              pw.Center(
+                child: pw.Text('Date: $nextDayDate', style: const pw.TextStyle(fontSize: 11, color: PdfColors.grey800)),
+              ),
+              pw.SizedBox(height: 10),
+              
+              // ലെഫ്റ്റ് അലൈൻമെന്റ് കൃത്യമാക്കിയ ടേബിൾ
+              pw.Table.fromTextArray(
+                border: pw.TableBorder.all(color: PdfColors.black, width: 0.8),
+                headers: ['S.No', 'Item Name', 'Price * Qty'],
+                data: tableData,
+                headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10),
+                cellStyle: const pw.TextStyle(fontSize: 10),
+                headerDecoration: const pw.BoxDecoration(color: PdfColors.grey300),
+                headerAlignment: pw.Alignment.centerLeft, // ഹെഡ്ഡർ ലെഫ്റ്റ് അലൈൻ
+                cellAlignment: pw.Alignment.centerLeft,   // എല്ലാ ഡാറ്റയും ലെഫ്റ്റ് അലൈൻ
+                columnWidths: {
+                  0: const pw.FixedColumnWidth(35),  // Sl No
+                  1: const pw.FlexColumnWidth(2.5),  // Item Name
+                  2: const pw.FlexColumnWidth(2),    // Price * Qty (ഐറ്റത്തിന് തൊട്ടടുത്ത് ലെഫ്റ്റ് അലൈൻ ആയി വരും)
+                },
+              ),
+            ],
           );
         },
       ),
     );
 
-    // ഫോണിലെ സിസ്റ്റം പ്രിന്റർ/PDF സേവർ ഓപ്പൺ ചെയ്യുന്നു
     await Printing.layoutPdf(
       onLayout: (PdfPageFormat format) async => pdf.save(),
       name: 'MyBake_Order_$nextDayDate.pdf',
