@@ -13,7 +13,7 @@ class MyBakeApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'My Bake Order list tabha',
+      title: 'My Bake Order Request',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.amber,
@@ -116,7 +116,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
     }
   }
 
-  // കോളം വിഡ്ത്ത് ഐറ്റത്തിന് തൊട്ടടുത്ത് വരുന്ന രീതിയിൽ മാറ്റിയ A5 PDF ഫംഗ്ഷൻ
+  // Price * Qty കോളം പരമാവധി ഇടത്തേക്ക് അടുപ്പിച്ച A5 PDF ഫംഗ്ഷൻ
   Future<void> _printA5Document() async {
     final pdf = pw.Document();
 
@@ -145,7 +145,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
               pw.Center(
-                child: pw.Text('MY BAKE ORDER list tabha', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                child: pw.Text('MY BAKE ORDER REQUEST', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
               ),
               pw.SizedBox(height: 4),
               pw.Center(
@@ -153,7 +153,6 @@ class _OrderHomePageState extends State<OrderHomePage> {
               ),
               pw.SizedBox(height: 10),
               
-              // ടേബിൾ പരമാവധി ഇടത്തേക്ക് അടുത്തുനിൽക്കുന്ന സ്ട്രക്ചർ
               pw.Table.fromTextArray(
                 border: pw.TableBorder.all(color: PdfColors.black, width: 0.8),
                 headers: ['S.No', 'Item Name', 'Price * Qty'],
@@ -164,9 +163,9 @@ class _OrderHomePageState extends State<OrderHomePage> {
                 headerAlignment: pw.Alignment.centerLeft,
                 cellAlignment: pw.Alignment.centerLeft,
                 columnWidths: {
-                  0: const pw.FixedColumnWidth(30),  // Sl No (ചെറിയ വിഡ്ത്ത്)
-                  1: const pw.FlexColumnWidth(1.2),  // Item Name (പരമാവധി ആവശ്യമുള്ള വിഡ്ത്ത് മാത്രം)
-                  2: const pw.FlexColumnWidth(3.),  // Price * Qty (ഐറ്റത്തിന് തൊട്ടടുത്ത് വരും)
+                  0: const pw.FixedColumnWidth(30),  // Sl No
+                  1: const pw.FlexColumnWidth(1.2),  // Item Name (കുറഞ്ഞ വിഡ്ത്ത് - പ്രൈസ് കള്ളി പരമാവധി ഇടത്തേക്ക് വരും)
+                  2: const pw.FlexColumnWidth(3.0),  // Price * Qty
                 },
               ),
             ],
