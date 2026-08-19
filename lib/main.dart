@@ -116,7 +116,6 @@ class _OrderHomePageState extends State<OrderHomePage> {
     }
   }
 
-  // ആപ്പിൽ നിന്ന് തന്നെ പുതിയ പ്രോഡക്റ്റ് ആഡ് ചെയ്യാനുള്ള വിൻഡോ (Dialog)
   void _showAddProductDialog() {
     final nameController = TextEditingController();
     final pricesController = TextEditingController();
@@ -394,7 +393,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
                                 child: ListTile(
                                   leading: CircleAvatar(
                                     backgroundColor: Colors.amber[100],
-                                    child: Text("${index + 1}", style: const TextStyle(color: Colors.black80, fontWeight: FontWeight.bold)),
+                                    child: Text("${index + 1}", style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
                                   ),
                                   title: Text(key, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                   subtitle: Text(formattedDetails, style: const TextStyle(fontSize: 14, color: Colors.indigo, fontWeight: FontWeight.w600)),
