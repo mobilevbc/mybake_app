@@ -116,7 +116,76 @@ class _OrderHomePageState extends State<OrderHomePage> {
     }
   }
 
-  // Price * Qty കോളം പരമാവധി ഇടത്തേക്ക് അടുപ്പിച്ച A5 PDF ഫംഗ്ഷൻ
+  // ആപ്പിൽ നിന്ന് തന്നെ പുതിയ പ്രോഡക്റ്റ് ആഡ് ചെയ്യാനുള്ള വിൻഡോ (Dialog)
+  void _showAddProductDialog() {
+    final nameController = TextEditingController();
+    final pricesController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Add New Product"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: "Product Name",
+                  hintText: "eg: Red Velvet",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: pricesController,
+                keyboardType: TextInputType.text,
+                decoration: const InputDecoration(
+                  labelText: "Prices (comma separated)",
+                  hintText: "eg: 35, 65, 100",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                String name = nameController.text.trim().toLowerCase();
+                String pricesText = pricesController.text.trim();
+
+                if (name.isNotEmpty && pricesText.isNotEmpty) {
+                  List<int> prices = pricesText
+                      .split(',')
+                      .map((p) => int.tryParse(p.trim()) ?? 0)
+                      .where((p) => p > 0)
+                      .toList();
+
+                  if (prices.isNotEmpty) {
+                    setState(() {
+                      productsData[name] = prices;
+                      _onProductSelected(name);
+                    });
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("New Product '$name' Added!")),
+                    );
+                  }
+                }
+              },
+              child: const Text("Add"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _printA5Document() async {
     final pdf = pw.Document();
 
@@ -145,7 +214,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
               pw.Center(
-                child: pw.Text('MY BAKE ORDER LIST TABHA BRANCH', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                child: pw.Text('MY BAKE ORDER REQUEST', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
               ),
               pw.SizedBox(height: 4),
               pw.Center(
@@ -163,9 +232,9 @@ class _OrderHomePageState extends State<OrderHomePage> {
                 headerAlignment: pw.Alignment.centerLeft,
                 cellAlignment: pw.Alignment.centerLeft,
                 columnWidths: {
-                  0: const pw.FixedColumnWidth(30),  // Sl No
-                  1: const pw.FlexColumnWidth(1.2),  // Item Name (കുറഞ്ഞ വിഡ്ത്ത് - പ്രൈസ് കള്ളി പരമാവധി ഇടത്തേക്ക് വരും)
-                  2: const pw.FlexColumnWidth(3.0),  // Price * Qty
+                  0: const pw.FixedColumnWidth(30),
+                  1: const pw.FlexColumnWidth(1.2),
+                  2: const pw.FlexColumnWidth(3.0),
                 },
               ),
             ],
@@ -210,16 +279,36 @@ class _OrderHomePageState extends State<OrderHomePage> {
         ),
         body: TabBarView(
           children: [
+            // Tab 1: Select Item
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Select Product", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text("Select Product", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      ElevatedButton.icon(
+                        onPressed: _showAddProductDialog,
+                        icon: const Icon(Icons.add, size: 18),
+                        label: const Text("Add New Item"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.amber[800],
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
                     value: selectedProduct,
-                    decoration: const InputDecoration(border: OutlineInputBorder(), contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10), hintText: "Choose Product"),
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      hintText: "Choose Product",
+                    ),
                     items: productsData.keys.map((String key) {
                       return DropdownMenuItem<String>(value: key, child: Text(key));
                     }).toList(),
@@ -259,13 +348,19 @@ class _OrderHomePageState extends State<OrderHomePage> {
                       onPressed: _addToOrder,
                       icon: const Icon(Icons.add),
                       label: const Text("Add To Order List"),
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.amber[700], foregroundColor: Colors.white, minimumSize: const Size.fromHeight(48)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.amber[700],
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size.fromHeight(48),
+                      ),
                     )
                   ] else
                     const Expanded(child: Center(child: Text("പ്രോഡക്റ്റ് സെലക്ട് ചെയ്യുക"))),
                 ],
               ),
             ),
+
+            // Tab 2: Order List
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -274,11 +369,12 @@ class _OrderHomePageState extends State<OrderHomePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text("Total Items: ${orderSummary.length}", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                      IconButton(
-                        icon: const Icon(Icons.delete_sweep, color: Colors.red),
-                        onPressed: () => setState(() => orderSummary.clear()),
-                        tooltip: "Clear All",
-                      )
+                      if (orderSummary.isNotEmpty)
+                        IconButton(
+                          icon: const Icon(Icons.delete_sweep, color: Colors.red),
+                          onPressed: () => setState(() => orderSummary.clear()),
+                          tooltip: "Clear All",
+                        )
                     ],
                   ),
                   const Divider(),
@@ -290,12 +386,18 @@ class _OrderHomePageState extends State<OrderHomePage> {
                             itemBuilder: (context, index) {
                               String key = orderSummary.keys.elementAt(index);
                               Map<int, int> prices = orderSummary[key]!;
-                              String formattedDetails = prices.entries.map((e) => "${e.key}*${e.value}").join(", ");
+                              String formattedDetails = prices.entries.map((e) => "${e.key} * ${e.value}").join(", ");
 
                               return Card(
+                                elevation: 2,
+                                margin: const EdgeInsets.symmetric(vertical: 4),
                                 child: ListTile(
-                                  title: Text(key, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                  subtitle: Text(formattedDetails, style: const TextStyle(fontSize: 14, color: Colors.indigo, fontWeight: FontWeight.bold)),
+                                  leading: CircleAvatar(
+                                    backgroundColor: Colors.amber[100],
+                                    child: Text("${index + 1}", style: const TextStyle(color: Colors.black80, fontWeight: FontWeight.bold)),
+                                  ),
+                                  title: Text(key, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                  subtitle: Text(formattedDetails, style: const TextStyle(fontSize: 14, color: Colors.indigo, fontWeight: FontWeight.w600)),
                                   trailing: IconButton(
                                     icon: const Icon(Icons.remove_circle_outline, color: Colors.redAccent),
                                     onPressed: () => setState(() => orderSummary.remove(key)),
@@ -310,7 +412,11 @@ class _OrderHomePageState extends State<OrderHomePage> {
                     onPressed: orderSummary.isEmpty ? null : _printA5Document,
                     icon: const Icon(Icons.print),
                     label: const Text("Print / Save as A5 PDF"),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green[700], foregroundColor: Colors.white, minimumSize: const Size.fromHeight(50)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green[700],
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size.fromHeight(50),
+                    ),
                   )
                 ],
               ),
