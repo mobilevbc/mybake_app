@@ -111,7 +111,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
         orderSummary[selectedProduct!] = currentQtyMap;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("$selectedProduct ഓർഡറിലേക്ക് ചേർത്തു!"), duration: const Duration(seconds: 1)),
+        SnackBar(content: Text("$selectedProduct added to order list!"), duration: const Duration(seconds: 1)),
       );
     }
   }
@@ -354,7 +354,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
                       ),
                     )
                   ] else
-                    const Expanded(child: Center(child: Text("പ്രോഡക്റ്റ് സെലക്ട് ചെയ്യുക"))),
+                    const Expanded(child: Center(child: Text("Please select a product"))),
                 ],
               ),
             ),
@@ -379,7 +379,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
                   const Divider(),
                   Expanded(
                     child: orderSummary.isEmpty
-                        ? const Center(child: Text("ഓർഡർ ലിസ്റ്റ് ശൂന്യമാണ്"))
+                        ? const Center(child: Text("Order list is empty"))
                         : ListView.builder(
                             itemCount: orderSummary.length,
                             itemBuilder: (context, index) {
