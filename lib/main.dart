@@ -116,7 +116,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
     }
   }
 
-  // Left Alignment കൃത്യമാക്കിയ A5 PDF ജനറേഷൻ ഫംഗ്ഷൻ
+  // കോളം വിഡ്ത്ത് ഐറ്റത്തിന് തൊട്ടടുത്ത് വരുന്ന രീതിയിൽ മാറ്റിയ A5 PDF ഫംഗ്ഷൻ
   Future<void> _printA5Document() async {
     final pdf = pw.Document();
 
@@ -153,7 +153,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
               ),
               pw.SizedBox(height: 10),
               
-              // ലെഫ്റ്റ് അലൈൻമെന്റ് കൃത്യമാക്കിയ ടേബിൾ
+              // ടേബിൾ പരമാവധി ഇടത്തേക്ക് അടുത്തുനിൽക്കുന്ന സ്ട്രക്ചർ
               pw.Table.fromTextArray(
                 border: pw.TableBorder.all(color: PdfColors.black, width: 0.8),
                 headers: ['S.No', 'Item Name', 'Price * Qty'],
@@ -161,12 +161,12 @@ class _OrderHomePageState extends State<OrderHomePage> {
                 headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10),
                 cellStyle: const pw.TextStyle(fontSize: 10),
                 headerDecoration: const pw.BoxDecoration(color: PdfColors.grey300),
-                headerAlignment: pw.Alignment.centerLeft, // ഹെഡ്ഡർ ലെഫ്റ്റ് അലൈൻ
-                cellAlignment: pw.Alignment.centerLeft,   // എല്ലാ ഡാറ്റയും ലെഫ്റ്റ് അലൈൻ
+                headerAlignment: pw.Alignment.centerLeft,
+                cellAlignment: pw.Alignment.centerLeft,
                 columnWidths: {
-                  0: const pw.FixedColumnWidth(35),  // Sl No
-                  1: const pw.FlexColumnWidth(2.5),  // Item Name
-                  2: const pw.FlexColumnWidth(2),    // Price * Qty (ഐറ്റത്തിന് തൊട്ടടുത്ത് ലെഫ്റ്റ് അലൈൻ ആയി വരും)
+                  0: const pw.FixedColumnWidth(30),  // Sl No (ചെറിയ വിഡ്ത്ത്)
+                  1: const pw.FlexColumnWidth(1.8),  // Item Name (പരമാവധി ആവശ്യമുള്ള വിഡ്ത്ത് മാത്രം)
+                  2: const pw.FlexColumnWidth(2.2),  // Price * Qty (ഐറ്റത്തിന് തൊട്ടടുത്ത് വരും)
                 },
               ),
             ],
