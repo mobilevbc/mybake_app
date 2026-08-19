@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 void main() {
   runApp(const MyBakeApp());
@@ -108,59 +111,58 @@ class _OrderHomePageState extends State<OrderHomePage> {
         orderSummary[selectedProduct!] = currentQtyMap;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("$selectedProduct ആഡ് ചെയ്തു!"), duration: const Duration(seconds: 1)),
+        SnackBar(content: Text("$selectedProduct ഓർഡറിലേക്ക് ചേർത്തു!"), duration: const Duration(seconds: 1)),
       );
     }
   }
 
-  void _showA5PrintPreview() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Image.asset('assets/icon.png', width: 30, height: 30, errorBuilder: (c, o, s) => const Icon(Icons.cake, color: Colors.amber)),
-            const SizedBox(width: 10),
-            const Text("My Bake - A5 Sheet"),
-          ],
-        ),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+  // A5 സൈസ് പ്രിന്റിംഗ് & PDF ജനറേഷൻ ഫംഗ്ഷൻ
+  Future<void> _printA5Document() async {
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a5,
+        build: (pw.Context context) {
+          return pw.Padding(
+            padding: const pw.EdgeInsets.all(16),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                const Center(child: Text("ORDER REQUEST", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
-                Center(child: Text("Date: $nextDayDate", style: const TextStyle(color: Colors.grey, fontSize: 12))),
-                const Divider(thickness: 1.5),
+                pw.Center(
+                  child: pw.Text('MY BAKE ORDER REQUEST', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+                ),
+                pw.SizedBox(height: 5),
+                pw.Center(
+                  child: pw.Text('Date: $nextDayDate', style: const pw.TextStyle(fontSize: 12, color: PdfColors.grey700)),
+                ),
+                pw.Divider(thickness: 1.5),
+                pw.SizedBox(height: 10),
                 ...orderSummary.entries.map((entry) {
                   String details = entry.value.entries.map((e) => "${e.key}*${e.value}").join(", ");
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  return pw.Padding(
+                    padding: const pw.EdgeInsets.symmetric(vertical: 4),
+                    child: pw.Row(
+                      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(child: Text(entry.key, style: const TextStyle(fontWeight: FontWeight.w600))),
-                        Text(details, style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.bold)),
+                        pw.Text(entry.key, style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold)),
+                        pw.Text(details, style: const pw.TextStyle(fontSize: 12)),
                       ],
                     ),
                   );
                 }),
-                const Divider(thickness: 1.5),
+                pw.Divider(thickness: 1.5),
               ],
             ),
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Close")),
-          ElevatedButton.icon(
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.print),
-            label: const Text("Print / PDF"),
-          )
-        ],
+          );
+        },
       ),
+    );
+
+    // ഫോണിലെ സിസ്റ്റം പ്രിന്റർ/PDF സേവർ ഓപ്പൺ ചെയ്യുന്നു
+    await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => pdf.save(),
+      name: 'MyBake_Order_$nextDayDate.pdf',
     );
   }
 
@@ -291,9 +293,9 @@ class _OrderHomePageState extends State<OrderHomePage> {
                   ),
                   const SizedBox(height: 10),
                   ElevatedButton.icon(
-                    onPressed: orderSummary.isEmpty ? null : _showA5PrintPreview,
+                    onPressed: orderSummary.isEmpty ? null : _printA5Document,
                     icon: const Icon(Icons.print),
-                    label: const Text("A5 Print / Preview"),
+                    label: const Text("Print / Save as A5 PDF"),
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.green[700], foregroundColor: Colors.white, minimumSize: const Size.fromHeight(50)),
                   )
                 ],
