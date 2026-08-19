@@ -145,7 +145,7 @@ class _OrderHomePageState extends State<OrderHomePage> {
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
               pw.Center(
-                child: pw.Text('MY BAKE ORDER REQUEST', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                child: pw.Text('MY BAKE ORDER list tabha', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
               ),
               pw.SizedBox(height: 4),
               pw.Center(
@@ -165,8 +165,8 @@ class _OrderHomePageState extends State<OrderHomePage> {
                 cellAlignment: pw.Alignment.centerLeft,
                 columnWidths: {
                   0: const pw.FixedColumnWidth(30),  // Sl No (ചെറിയ വിഡ്ത്ത്)
-                  1: const pw.FlexColumnWidth(1.8),  // Item Name (പരമാവധി ആവശ്യമുള്ള വിഡ്ത്ത് മാത്രം)
-                  2: const pw.FlexColumnWidth(2.2),  // Price * Qty (ഐറ്റത്തിന് തൊട്ടടുത്ത് വരും)
+                  1: const pw.FlexColumnWidth(1.2),  // Item Name (പരമാവധി ആവശ്യമുള്ള വിഡ്ത്ത് മാത്രം)
+                  2: const pw.FlexColumnWidth(3.),  // Price * Qty (ഐറ്റത്തിന് തൊട്ടടുത്ത് വരും)
                 },
               ),
             ],
